@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Price Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1, h2 {
+            color: #000613;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #000613;
+        }
+        select, input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #000613;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #000613;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #001226;
+        }
+        #result {
+            margin-top: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #000613;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The American University of Kurdistan</h1>
+        <h2>Fab Lab & BIM Lab</h2>
+        <h1>Project Price Calculator</h1>
+        <form id="calculator-form">
+            <label for="service">Service:</label>
+            <select id="service" required>
+                <option value="">Select a service</option>
+                <option value="3D Printing - PLA">3D Printing - PLA</option>
+                <option value="CNC Laser">CNC Laser</option>
+                <option value="Poster">Poster</option>
+            </select>
+
+            <div id="poster-options" style="display: none;">
+                <label for="size">Size:</label>
+                <select id="size">
+                    <option value="">Select a size</option>
+                    <option value="A0">A0</option>
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="A3">A3</option>
+                </select>
+
+                <label for="paper-type">Paper Type:</label>
+                <select id="paper-type">
+                    <option value="">Select paper type</option>
+                    <option value="Gloss">Gloss</option>
+                    <option value="Plain">Plain</option>
+                </select>
+
+                <label for="ink-usage">Ink Usage:</label>
+                <select id="ink-usage">
+                    <option value="">Select ink usage</option>
+                    <option value="Less Ink">Less Ink</option>
+                    <option value="More Ink">More Ink</option>
+                </select>
+
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" min="1" value="1">
+            </div>
+
+            <div id="other-services" style="display: none;">
+                <label for="measurement" id="measurement-label">Weight (g):</label>
+                <input type="number" id="measurement" step="0.01" min="0">
+            </div>
+
+            <button type="submit">Calculate Price</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('calculator-form');
+        const serviceSelect = document.getElementById('service');
+        const posterOptions = document.getElementById('poster-options');
+        const otherServices = document.getElementById('other-services');
+        const resultDiv = document.getElementById('result');
+        const measurementLabel = document.getElementById('measurement-label');
+        const measurementInput = document.getElementById('measurement');
+
+        serviceSelect.addEventListener('change', () => {
+            if (serviceSelect.value === 'Poster') {
+                posterOptions.style.display = 'block';
+                otherServices.style.display = 'none';
+            } else if (serviceSelect.value === '3D Printing - PLA' || serviceSelect.value === 'CNC Laser') {
+                posterOptions.style.display = 'none';
+                otherServices.style.display = 'block';
+                if (serviceSelect.value === '3D Printing - PLA') {
+                    measurementLabel.textContent = 'Weight (g):';
+                    measurementInput.step = '0.01';
+                } else {
+                    measurementLabel.textContent = 'Time (s):';
+                    measurementInput.step = '1';
+                }
+            } else {
+                posterOptions.style.display = 'none';
+                otherServices.style.display = 'none';
+            }
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const service = serviceSelect.value;
+            let price = 0;
+
+            if (service === 'Poster') {
+                const size = document.getElementById('size').value;
+                const paperType = document.getElementById('paper-type').value;
+                const inkUsage = document.getElementById('ink-usage').value;
+                const quantity = parseInt(document.getElementById('quantity').value) || 1;
+
+                if (!size || !paperType || !inkUsage) {
+                    resultDiv.textContent = 'Please select Size, Paper Type, and Ink Usage';
+                    return;
+                }
+
+                const priceTable = {
+                    'A0': { 'Gloss': { 'Less Ink': 3.50, 'More Ink': 5.00 }, 'Plain': { 'Less Ink': 1.50, 'More Ink': 3.00 } },
+                    'A1': { 'Gloss': { 'Less Ink': 3.00, 'More Ink': 4.00 }, 'Plain': { 'Less Ink': 1.40, 'More Ink': 2.80 } },
+                    'A2': { 'Gloss': { 'Less Ink': 2.00, 'More Ink': 2.50 }, 'Plain': { 'Less Ink': 1.00, 'More Ink': 1.50 } },
+                    'A3': { 'Gloss': { 'Less Ink': 1.50, 'More Ink': 2.00 }, 'Plain': { 'Less Ink': 1.00, 'More Ink': 1.50 } }
+                };
+
+                price = priceTable[size][paperType][inkUsage] * quantity;
+            } else if (service === '3D Printing - PLA' || service === 'CNC Laser') {
+                const measurement = parseFloat(document.getElementById('measurement').value);
+                if (isNaN(measurement) || measurement <= 0) {
+                    resultDiv.textContent = `Please enter a valid ${service === '3D Printing - PLA' ? 'weight' : 'time'}`;
+                    return;
+                }
+                price = (measurement / (service === '3D Printing - PLA' ? 1000 : 1)) * 0.15; // Convert grams to kg for 3D Printing
+            } else {
+                resultDiv.textContent = 'Please select a service';
+                return;
+            }
+
+            resultDiv.textContent = `$${price.toFixed(2)}`;
+        });
+    </script>
+</body>
+</html>
